@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "name": "linux",
+      "includePath": ["/home/fx/.arduino15/**"],
+      "intelliSenseMode": "linux-gcc-x64",
+      "compilerPath": "/home/fx/bin/arduino-cli",
+      "cStandard": "c17",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

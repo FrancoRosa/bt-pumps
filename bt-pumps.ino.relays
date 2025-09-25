@@ -1,5 +1,4 @@
 #define led 13
-#define volmeter 0
 
 #define pump1 5
 #define pump2 6
@@ -7,10 +6,12 @@
 #define pump4 8
 #define pump5 9
 #define pump6 10
-#define pump7 10
-#define pump8 10
+#define pump7 11
+#define pump8 12
+#define pump9 A0
+#define pump10 A1
 
-const int pumpPins[] = {pump1, pump2, pump3, pump4, pump5, pump6, pump7, pump8};
+const int pumpPins[] = {pump1, pump2, pump3, pump4, pump5, pump6, pump7, pump8, pump9, pump10};
 const int numPumps = sizeof(pumpPins) / sizeof(pumpPins[0]);
 
 void setup()
@@ -34,6 +35,7 @@ void loop()
         Serial.print(i + 1);
         Serial.println(" ON");
         digitalWrite(pumpPins[i], LOW);
+        digitalWrite(led, LOW);
 
         delay(1000); // Wait for 1 second
 
@@ -42,7 +44,8 @@ void loop()
         Serial.print(i + 1);
         Serial.println(" OFF");
         digitalWrite(pumpPins[i], HIGH);
+        digitalWrite(led, HIGH);
 
-        delay(500); // Wait half a second before moving to the next pump
+        delay(2000); // Wait half a second before moving to the next pump
     }
 }

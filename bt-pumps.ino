@@ -3,14 +3,18 @@
 #include <RTClib.h>
 #define led 13
 #define sqw 2
-#define volmeter 0
+#define volmeter A2
 
-#define pump1 5
-#define pump2 6
-#define pump3 7
-#define pump4 8
-#define pump5 9
-#define inverter 10
+#define pump1 5   // 0
+#define pump2 6   // 1
+#define pump3 7   // 2
+#define pump4 8   // 3
+#define pump5 9   // 4
+#define pump6 10  // 5
+#define pump7 11  // 6
+#define pump8 12  // 7
+#define pump9 A0  // 8
+#define pump10 A1 // 9
 
 #define memoryLen 8
 #define bufferLen 40
@@ -35,10 +39,33 @@ volatile bool showFlag = false;
 
 DateTime now;
 volatile bool flagShowRTC = false;
+const int pumpPins[] = {pump1, pump2, pump3, pump4, pump5, pump6, pump7, pump8, pump9, pump10};
+const int numPumps = sizeof(pumpPins) / sizeof(pumpPins[0]);
+
+void test()
+{
+    for (int i = 0; i < numPumps; i++)
+    {
+        // Turn the current pump ON
+        Serial.print(i);
+        Serial.println(" ON");
+        digitalWrite(pumpPins[i], LOW);
+        digitalWrite(led, HIGH);
+
+        delay(2000); // Wait for 1 second
+
+        // Turn the current pump OFF
+        Serial.print(i);
+        Serial.println(" OFF");
+        digitalWrite(pumpPins[i], HIGH);
+        digitalWrite(led, LOW);
+
+        delay(2000); // Wait half a second before moving to the next pump
+    }
+}
 
 void setup()
 {
-    Serial.begin(115200);
     rtc.begin();
     rtc.disable32K();
     rtc.clearAlarm(1);
@@ -46,26 +73,19 @@ void setup()
     rtc.disableAlarm(1);
     rtc.disableAlarm(1);
     rtc.writeSqwPinMode(DS3231_SquareWave1Hz);
-    pinMode(led, OUTPUT);
-    pinMode(sqw, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(sqw), everySecond, FALLING);
-    Serial.println("Hello Mdfkr!");
+    Serial.begin(115200);
+    Serial.println("Hello Freakbitches!");
     bluetoothComm.begin(9600);
     bluetoothComm.println("Hello, world?");
-
-    pinMode(pump1, OUTPUT);
-    pinMode(pump2, OUTPUT);
-    pinMode(pump3, OUTPUT);
-    pinMode(pump4, OUTPUT);
-    pinMode(pump5, OUTPUT);
-    pinMode(inverter, OUTPUT);
-
-    digitalWrite(pump1, HIGH);
-    digitalWrite(pump2, HIGH);
-    digitalWrite(pump3, HIGH);
-    digitalWrite(pump4, HIGH);
-    digitalWrite(pump5, HIGH);
-    digitalWrite(inverter, HIGH);
+    pinMode(led, OUTPUT);
+    pinMode(sqw, INPUT_PULLUP);
+    for (int i = 0; i < numPumps; i++)
+    {
+        pinMode(pumpPins[i], OUTPUT);
+        digitalWrite(pumpPins[i], HIGH); // Start with all pumps OFF
+    }
+    test();
+    attachInterrupt(digitalPinToInterrupt(sqw), everySecond, FALLING);
 }
 
 void everySecond()
@@ -113,59 +133,19 @@ void compareWithEEPROM()
             saved[7] = EEPROM.read(offset + 7);
             if ((now.hour() == saved[2]) && (now.minute() == saved[3]) && (now.second() == saved[4]))
             {
-                switch (saved[0])
+                int targetPump = saved[0];
+                if (targetPump >= 0 && targetPump <= numPumps)
                 {
-                case 1:
-                    digitalWrite(pump1, LOW);
-                    digitalWrite(inverter, LOW);
-                    break;
-                case 2:
-                    digitalWrite(pump2, LOW);
-                    digitalWrite(inverter, LOW);
-                    break;
-                case 3:
-                    digitalWrite(pump3, LOW);
-                    digitalWrite(inverter, LOW);
-                    break;
-                case 4:
-                    digitalWrite(pump4, LOW);
-                    digitalWrite(inverter, LOW);
-                    break;
-                case 5:
-                    digitalWrite(pump5, LOW);
-                    digitalWrite(inverter, LOW);
-                    break;
-                default:
-                    break;
+                    digitalWrite(pumpPins[targetPump], LOW);
                 }
             }
 
             if ((now.hour() == saved[5]) && (now.minute() == saved[6]) && (now.second() == saved[7]))
             {
-                switch (saved[0])
+                int targetPump = saved[0];
+                if (targetPump >= 0 && targetPump <= numPumps)
                 {
-                case 1:
-                    digitalWrite(pump1, HIGH);
-                    digitalWrite(inverter, HIGH);
-                    break;
-                case 2:
-                    digitalWrite(pump2, HIGH);
-                    digitalWrite(inverter, HIGH);
-                    break;
-                case 3:
-                    digitalWrite(pump3, HIGH);
-                    digitalWrite(inverter, HIGH);
-                    break;
-                case 4:
-                    digitalWrite(pump4, HIGH);
-                    digitalWrite(inverter, HIGH);
-                    break;
-                case 5:
-                    digitalWrite(pump5, HIGH);
-                    digitalWrite(inverter, HIGH);
-                    break;
-                default:
-                    break;
+                    digitalWrite(pumpPins[targetPump], HIGH);
                 }
             }
         }
@@ -183,7 +163,6 @@ void compareWithEEPROM()
 */
 void printDate(DateTime date)
 {
-
     int volValue = 0;
     volValue = analogRead(volmeter);
     sprintf(outbuffer, "Tm(%d) %02d:%02d:%02d %3d\r\n", date.dayOfTheWeek(), date.hour(), date.minute(), date.second(), volValue);

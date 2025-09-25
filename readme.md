@@ -27,6 +27,5 @@ arduino-cli core install arduino:avr
 Install required libraries
 
 ```bash
-arduino-cli lib search timerone
-arduino-cli lib install TimerOne
+arduino-cli lib install RTClib
 ```

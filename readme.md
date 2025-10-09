@@ -1,8 +1,8 @@
-# board game
+# bt pumps controller
 
 > Programming game with real objects
 
-This repo contains the required software to a control a rover from a board by using a bluetooth bridge
+This repo contains the required software to a control relays from the schedules stored on eeprom
 
 ## Dependencies
 

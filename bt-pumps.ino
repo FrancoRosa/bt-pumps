@@ -1,3 +1,5 @@
+// Software de temporizacion de bombas
+
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
 #include <RTClib.h>
@@ -66,6 +68,7 @@ void test()
 
 void setup()
 {
+    // Inicializacion de reloj en tiempo real
     rtc.begin();
     rtc.disable32K();
     rtc.clearAlarm(1);
@@ -73,17 +76,23 @@ void setup()
     rtc.disableAlarm(1);
     rtc.disableAlarm(1);
     rtc.writeSqwPinMode(DS3231_SquareWave1Hz);
+
+    // Inicializacion de interfaz de comunicacion
     Serial.begin(115200);
-    Serial.println("Hello Freakbitches!");
+    Serial.println("... Comunicacion serial Ok");
     bluetoothComm.begin(9600);
-    bluetoothComm.println("Hello, world?");
+    bluetoothComm.println("... Comunicacion Bluetooth Ok");
+
+    // Inicializacion de relays de control
     pinMode(led, OUTPUT);
     pinMode(sqw, INPUT_PULLUP);
     for (int i = 0; i < numPumps; i++)
     {
         pinMode(pumpPins[i], OUTPUT);
-        digitalWrite(pumpPins[i], HIGH); // Start with all pumps OFF
+        // Mantener relays apagados
+        digitalWrite(pumpPins[i], HIGH);
     }
+    // Prueba de bombas
     test();
     attachInterrupt(digitalPinToInterrupt(sqw), everySecond, FALLING);
 }
